@@ -64,6 +64,12 @@ static void cpu_ld_16_join(uint8_t *dest_h, uint8_t *dest_l, gbcp)
 	*dest_h = cpu->mmu->memory[++cpu->r.pc];
 }
 
+static inline uint16_t cpu_read_16_join(const uint8_t *reg1, const uint8_t *reg2)
+{
+	//Read two registers as a 16-bit value.
+	return (*reg1 << 8) | (*reg2);
+}
+
 void cpu_ld_sp_nn(struct gbcpu *cpu)
 {
 	cpu_ld_16(&cpu->r.sp, cpu);
@@ -89,4 +95,12 @@ static void cpu_xor_8(uint8_t *dest, const uint8_t r, const uint8_t s,
 void cpu_xor_a_n(struct gbcpu *cpu)
 {
 	cpu_xor_8(&cpu->r.a, cpu->r.a, cpu->r.a, cpu);
+}
+
+void cpu_ld_hld_a(struct gbcpu *cpu)
+{
+	//Put A into memory addr HL. Decrements HL.
+	uint16_t addr = cpu_read_16_join(&cpu->r.h, &cpu->r.l);
+	gbmmu_abs_write(cpu->mmu, addr, cpu->r.a);
+	printf("0x%04X\n", addr);
 }

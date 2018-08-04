@@ -8,5 +8,6 @@ struct gbmmu {
 };
 
 void gbmmu_init(struct gbmmu *mmu);
+void gbmmu_abs_write(struct gbmmu *mmu, const uint16_t addr, const uint8_t val);
 
 #endif

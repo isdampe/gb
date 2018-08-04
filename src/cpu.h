@@ -56,8 +56,11 @@ void cpu_noop(gbcp);
 //16-bit loads.
 static void cpu_ld_16(uint16_t *dest, gbcp);
 static void cpu_ld_16_join(uint8_t *dest_h, uint8_t *dest_l, gbcp);
+static inline uint16_t cpu_read_16_join(const uint8_t *reg1, const uint8_t *reg2);
+
 void cpu_ld_hl_nn(gbcp); //0x21
 void cpu_ld_sp_nn(gbcp); //0x31
+void cpu_ld_hld_a(gbcp); //0x32
 
 //XOR n
 static void cpu_xor_8(uint8_t *dest, const uint8_t r, const uint8_t s, gbcp);
@@ -115,7 +118,7 @@ static const struct cpu_op cpu_op_map[256] = {
 	{0x2F, "NIP", 0x1, &cpu_nip, 0x1},
 	{0x30, "NIP", 0x1, &cpu_nip, 0x1},
 	{0x31, "LD SP,NN", 0x2, &cpu_ld_sp_nn, 0xC},
-	{0x32, "NIP", 0x1, &cpu_nip, 0x1},
+	{0x32, "LD (HL-),A", 0x0, &cpu_ld_hld_a, 0x8},
 	{0x33, "NIP", 0x1, &cpu_nip, 0x1},
 	{0x34, "NIP", 0x1, &cpu_nip, 0x1},
 	{0x35, "NIP", 0x1, &cpu_nip, 0x1},
