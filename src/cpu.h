@@ -3,8 +3,6 @@
 #include <stdint.h>
 #include "mmu.h"
 
-#define gbprint(f_, ...) printf((f_), ##__VA_ARGS__)
-
 struct gbcpu_registers {
 	uint8_t a;
 	uint8_t b;
@@ -57,6 +55,8 @@ void cpu_noop(gbcp);
 static void cpu_ld_16(uint16_t *dest, gbcp);
 static void cpu_ld_16_join(uint8_t *dest_h, uint8_t *dest_l, gbcp);
 static inline uint16_t cpu_read_16_join(const uint8_t *reg1, const uint8_t *reg2);
+static inline void cpu_splt_16_ld_8(uint8_t *dest_h, uint8_t *dest_l, 
+		const uint16_t value);
 
 void cpu_ld_hl_nn(gbcp); //0x21
 void cpu_ld_sp_nn(gbcp); //0x31

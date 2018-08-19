@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cpu.h"
+#include "debug.h"
 
 void gbcpu_init(struct gbcpu *cpu, struct gbmmu *mmu)
 {
@@ -30,7 +31,10 @@ static void gbcpu_dump(struct gbcpu *cpu)
 	gbprint("Program counter: 0x%04X\n", cpu->r.pc);
 	gbprint("Flag register: 0x%02X\n", cpu->r.f);
 	gbprint("HL: 0x%01X%01X\n", cpu->r.h, cpu->r.l);
-	gbprint("\n-------------------\n");
+	gbprint("Immediate instruction stack: ");
+	for (short i=0; i<8; ++i)
+		gbprint("0x%02X ", cpu->mmu->memory[cpu->r.pc++]);
+	gbprint("\n\n-------------------\n");
 }
 
 void cpu_nip(struct gbcpu *cpu)
@@ -56,7 +60,7 @@ static void cpu_ld_16(uint16_t *dest, struct gbcpu *cpu)
 	*dest = res;
 }
 
-static void cpu_ld_16_join(uint8_t *dest_h, uint8_t *dest_l, gbcp)
+static void cpu_ld_16_join(uint8_t *dest_h, uint8_t *dest_l, struct gbcpu *cpu)
 {
 	//Read the proceeding two bytes of data from the PC and store them in a
 	//two 8-bit register to collectively make 16 bits.
@@ -68,6 +72,13 @@ static inline uint16_t cpu_read_16_join(const uint8_t *reg1, const uint8_t *reg2
 {
 	//Read two registers as a 16-bit value.
 	return (*reg1 << 8) | (*reg2);
+}
+
+static inline void cpu_splt_16_ld_8(uint8_t *dest_h, uint8_t *dest_l, 
+		const uint16_t value)
+{
+	*dest_h = value >> 8;
+	*dest_l = value & 0xFF;
 }
 
 void cpu_ld_sp_nn(struct gbcpu *cpu)
@@ -102,5 +113,5 @@ void cpu_ld_hld_a(struct gbcpu *cpu)
 	//Put A into memory addr HL. Decrements HL.
 	uint16_t addr = cpu_read_16_join(&cpu->r.h, &cpu->r.l);
 	gbmmu_abs_write(cpu->mmu, addr, cpu->r.a);
-	printf("0x%04X\n", addr);
+	cpu_splt_16_ld_8(&cpu->r.h, &cpu->r.l, --addr);
 }
